@@ -1,5 +1,5 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 import os
 from io import BytesIO
 from docx import Document
@@ -23,20 +23,20 @@ with tab1:
             st.error("Por favor, ingresa tu API Key de OpenAI.")
         else:
             with st.spinner("Generando sesión con IA..."):
-                openai.api_key = oai_key
                 prompt = f"""
 Eres un experto pedagógico. Crea una sesión de aprendizaje para el nivel {nivel} basada en la competencia: {competencia}, y el tema: {tema}.
 Incluye título, propósito, actividades de inicio, desarrollo y cierre, evaluación y recursos.
 """
                 try:
-                    response = openai.ChatCompletion.create(
+                    client = OpenAI(api_key=oai_key)
+                    response = client.chat.completions.create(
                         model="gpt-4o",
                         messages=[
                             {"role": "system", "content": "Eres un asistente pedagógico altamente calificado."},
                             {"role": "user", "content": prompt}
                         ]
                     )
-                    sesion = response["choices"][0]["message"]["content"]
+                    sesion = response.choices[0].message.content
                     st.success("✅ Sesión generada con éxito")
                     st.text_area("📄 Sesión generada:", sesion, height=400)
 
